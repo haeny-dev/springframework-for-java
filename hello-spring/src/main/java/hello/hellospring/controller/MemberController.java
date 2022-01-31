@@ -9,6 +9,15 @@ public class MemberController {
 
     private final MemberService memberService;
 
+//    # 1
+//    @Autowired private MemberService memberService;
+
+//    # 2
+//    @Autowired
+//    public void setMemberService(MemberService memberService){
+//        this.memberService = memberService;
+//    }
+
     @Autowired
     public MemberController(MemberService memberService) {
         this.memberService = memberService;
