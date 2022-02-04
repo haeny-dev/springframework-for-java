@@ -24,10 +24,19 @@ public class MemberService {
      * @return
      */
     public Long join(Member member) {
-        // 중복 회원 검증
-        validateDuplicateMember(member);
-        memberRepository.save(member);
-        return member.getId();
+
+        long start = System.currentTimeMillis();
+
+        try {
+            // 중복 회원 검증
+            validateDuplicateMember(member);
+            memberRepository.save(member);
+            return member.getId();
+        } finally {
+            long finish = System.currentTimeMillis();
+            long timeMs = finish - start;
+            System.out.println("join " + timeMs + "ms");
+        }
     }
 
     private void validateDuplicateMember(Member member) {
