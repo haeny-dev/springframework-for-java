@@ -9,6 +9,7 @@ import hello.servlet.web.frontcontroller.v4.controller.MemberFormControllerV4;
 import hello.servlet.web.frontcontroller.v4.controller.MemberListControllerV4;
 import hello.servlet.web.frontcontroller.v4.controller.MemberSaveControllerV4;
 import hello.servlet.web.frontcontroller.v5.adapter.ControllerV3HandlerAdapter;
+import hello.servlet.web.frontcontroller.v5.adapter.ControllerV4HandlerAdapter;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -34,26 +35,31 @@ public class FrontControllerServletV5 extends HttpServlet {
 
     private void initHandlerAdapters() {
         handlerAdapters.add(new ControllerV3HandlerAdapter());
+        handlerAdapters.add(new ControllerV4HandlerAdapter());
     }
 
     private void initHandlerMappingMap() {
-        String domainUrl = "/front-controller/v5/v3/member";
-        handlerMappingMap.put(domainUrl, new MemberListControllerV3());
-        handlerMappingMap.put(domainUrl + "/new-form", new MemberFormControllerV3());
-        handlerMappingMap.put(domainUrl + "/save", new MemberSaveControllerV3());
+        String domainUrlV3 = "/front-controller/v5/v3/members";
+        handlerMappingMap.put(domainUrlV3, new MemberListControllerV3());
+        handlerMappingMap.put(domainUrlV3 + "/new-form", new MemberFormControllerV3());
+        handlerMappingMap.put(domainUrlV3 + "/save", new MemberSaveControllerV3());
+
+        String domainUrlV4 = "/front-controller/v5/v4/members";
+        handlerMappingMap.put(domainUrlV4, new MemberListControllerV4());
+        handlerMappingMap.put(domainUrlV4 + "/new-form", new MemberFormControllerV4());
+        handlerMappingMap.put(domainUrlV4 + "/save", new MemberSaveControllerV4());
     }
 
     @Override
     protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
         Object handler = getHandler(request);
-        if(handler == null){
+        if (handler == null) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
 
-        MyHandlerAdapter adapter = getHandlerAdapter(handler);
-        ModelView mv = adapter.handle(request, response, handler);
+        ModelView mv = getHandlerAdapter(handler)
+                .handle(request, response, handler);
 
         viewResolver(mv.getViewName())
                 .render(mv.getModel(), request, response);
@@ -64,16 +70,21 @@ public class FrontControllerServletV5 extends HttpServlet {
     }
 
     private MyHandlerAdapter getHandlerAdapter(Object handler) {
+        return handlerAdapters.stream()
+                .filter(adapter -> adapter.supports(handler))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("handler adapter를 찾을 수 없습니다. handler=" + handler));
+        /*
         for (MyHandlerAdapter adapter : handlerAdapters) {
             if (adapter.supports(handler)) {
                 return adapter;
             }
         }
         throw new IllegalArgumentException("handler adapter를 찾을 수 없습니다. handler=" + handler);
+         */
     }
 
     private Object getHandler(HttpServletRequest request) {
-        String requestURI = request.getRequestURI();
-        return handlerMappingMap.get(requestURI);
+        return handlerMappingMap.get(request.getRequestURI());
     }
 }

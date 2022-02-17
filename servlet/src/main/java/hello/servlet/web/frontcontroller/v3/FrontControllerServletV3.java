@@ -21,7 +21,7 @@ public class FrontControllerServletV3 extends HttpServlet {
     private Map<String, ControllerV3> controllerMap = new HashMap<>();
 
     public FrontControllerServletV3() {
-        String domainUrl = "/front-controller/v3/member";
+        String domainUrl = "/front-controller/v3/members";
         controllerMap.put(domainUrl, new MemberListControllerV3());
         controllerMap.put(domainUrl + "/new-form", new MemberFormControllerV3());
         controllerMap.put(domainUrl + "/save", new MemberSaveControllerV3());
