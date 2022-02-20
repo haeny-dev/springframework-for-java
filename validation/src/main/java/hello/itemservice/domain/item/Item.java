@@ -13,6 +13,7 @@ import javax.validation.constraints.NotNull;
 message = "총 상품 가격이 10,000원 이상이어야 합니다.")*/
 public class Item {
 
+    @NotNull
     private Long id;
 
     @NotBlank/*(message = "공백X")*/
