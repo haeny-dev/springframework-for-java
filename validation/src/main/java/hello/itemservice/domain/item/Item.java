@@ -13,18 +13,18 @@ import javax.validation.constraints.NotNull;
 message = "총 상품 가격이 10,000원 이상이어야 합니다.")*/
 public class Item {
 
-    @NotNull
+    @NotNull(groups = UpdateCheck.class)    // 수정시에만 적용
     private Long id;
 
-    @NotBlank/*(message = "공백X")*/
+    @NotBlank(groups = {SaveCheck.class, UpdateCheck.class})
     private String itemName;
 
-    @NotNull
+    @NotNull(groups = {SaveCheck.class, UpdateCheck.class})
     @Range(min = 1000, max = 1000000)
     private Integer price;
 
-    @NotNull
-    @Max(9999)
+    @NotNull(groups = {SaveCheck.class, UpdateCheck.class})
+    @Max(value = 9999, groups = SaveCheck.class)    // 등록시에만 적용
     private Integer quantity;
 
     public Item() {
