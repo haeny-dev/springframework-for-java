@@ -2,12 +2,10 @@ package jpabook.jpashop.api;
 
 import jpabook.jpashop.domain.Member;
 import jpabook.jpashop.service.MemberService;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
@@ -39,6 +37,7 @@ public class MemberApiController {
 
     /**
      * 등록 API V2: 요청 값으로 Member 엔티티 대신에 별도의 DTO 를 받는다.
+     *
      * @param request
      * @return
      */
@@ -50,6 +49,30 @@ public class MemberApiController {
 
         Long id = memberService.join(member);
         return new CreateMemberResponse(id);
+    }
+
+    /**
+     * 수정 API
+     */
+    @PutMapping("/api/v2/members/{id}")
+    public UpdateMemberResponse updateMemberV2(@PathVariable Long id,
+                                               @RequestBody @Valid UpdateMemberRequest request) {
+        memberService.update(id, request.getName());
+        Member findMember = memberService.findOne(id);
+        return new UpdateMemberResponse(findMember.getId(), findMember.getName());
+    }
+
+    @Data
+    static class UpdateMemberRequest {
+        private String name;
+    }
+
+
+    @Data
+    @AllArgsConstructor
+    static class UpdateMemberResponse {
+        private Long id;
+        private String name;
     }
 
     @Data
