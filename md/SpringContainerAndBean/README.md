@@ -86,6 +86,3 @@ public class AppConfig {
 
 - XML 방식은 `GenericXmlApplicationContext` 가 `XmlBeanDefinitionReader` 를 사용해서 Xml 파일의 `<bean>` 을 읽어 BeanDefinition 을 생성한다. 
 
-
-
-
