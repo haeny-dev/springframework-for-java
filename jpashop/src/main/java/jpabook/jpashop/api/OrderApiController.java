@@ -58,8 +58,7 @@ public class OrderApiController {
                 .peek((order) -> {
                     order.getMember().getName();
                     order.getDelivery().getAddress();
-                    order.getOrderItems().stream()
-                            .forEach(oi -> oi.getItem().getName());
+                    order.getOrderItems().forEach(oi -> oi.getItem().getName());
                 }).collect(toList());
     }
 
@@ -105,10 +104,9 @@ public class OrderApiController {
     public List<OrderQueryDto> ordersV6() {
         List<OrderFlatDto> flats = orderQueryRepository.findAllByDto_flat();
         return flats.stream()
-                .collect(groupingBy(o -> new OrderQueryDto(
-                                o.getOrderId(), o.getName(), o.getOrderDate(), o.getOrderStatus(), o.getAddress()),
-                        mapping(o -> new OrderItemQueryDto(
-                                o.getOrderId(), o.getItemName(), o.getOrderPrice(), o.getCount()), toList())))
+                .collect(groupingBy(
+                        o -> new OrderQueryDto(o.getOrderId(), o.getName(), o.getOrderDate(), o.getOrderStatus(), o.getAddress()),
+                        mapping(o -> new OrderItemQueryDto(o.getOrderId(), o.getItemName(), o.getOrderPrice(), o.getCount()), toList())))
                 .entrySet()
                 .stream()
                 .map(e -> new OrderQueryDto(
@@ -119,7 +117,6 @@ public class OrderApiController {
                         e.getKey().getAddress(),
                         e.getValue()))
                 .collect(toList());
-
     }
 
     @Data

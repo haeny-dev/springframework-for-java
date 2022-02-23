@@ -55,8 +55,7 @@ public class OrderQueryRepository {
                         " join oi.item i" +
                         " where oi.order.id in :orderIds", OrderItemQueryDto.class)
                 .setParameter("orderIds", orderIds)
-                .getResultList()
-                .stream()
+                .getResultList().stream()
                 .collect(Collectors.groupingBy(OrderItemQueryDto::getOrderId));
     }
 
