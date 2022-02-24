@@ -8,6 +8,11 @@ import javax.persistence.*;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString(of = {"id", "username", "age"})
+/* 장점: m.username 을 m.usrename 처럼 오타를 쓰거나 다르게 사용했을 때 실행시점이 아닌 애플리케이션 컨텍스트 생성시점에 오류를 잡아준다.
+@NamedQuery(
+        name = "Member.findByUsername",
+        query = "select m from Member m where m.username = :username")
+*/
 public class Member {
 
     @Id
