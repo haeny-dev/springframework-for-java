@@ -17,3 +17,4 @@
 
 - [컴포넌트 스캔](md/ComponentScan/README.md)
 
+- [의존관계 자동 주입](md/AutoInjectingDependencies/README.md)
