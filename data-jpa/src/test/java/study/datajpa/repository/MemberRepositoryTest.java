@@ -284,7 +284,7 @@ class MemberRepositoryTest {
     }
 
     @Test
-    void findMemberFetchJoin(){
+    void findMemberFetchJoin() {
         // given
         Team teamA = new Team("teamA");
         Team teamB = new Team("teamB");
@@ -332,5 +332,10 @@ class MemberRepositoryTest {
         em.clear();
 
         memberRepository.findLockByUsername("member1");
+    }
+
+    @Test
+    void callCustom() {
+        List<Member> result = memberRepository.findMemberCustom();
     }
 }
