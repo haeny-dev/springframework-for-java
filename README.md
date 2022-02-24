@@ -20,3 +20,5 @@
 - [의존관계 자동 주입](md/AutoInjectingDependencies/README.md)
 
 - [빈의 생명주기 콜백](md/BeanLifecyleCallback/README.md)
+
+- [빈 스코프](md/BeanScope/README.md)
