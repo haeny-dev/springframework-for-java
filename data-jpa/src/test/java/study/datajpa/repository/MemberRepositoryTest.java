@@ -1,16 +1,20 @@
 package study.datajpa.repository;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import study.datajpa.dto.MemberDto;
 import study.datajpa.entity.Member;
 import study.datajpa.entity.Team;
 
+import javax.persistence.NonUniqueResultException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -142,5 +146,24 @@ class MemberRepositoryTest {
 
         List<Member> members = memberRepository.findByNames(Arrays.asList("AAA", "BBB"));
         assertThat(members).contains(m1, m2);
+    }
+
+    @Test
+    void returnType() {
+        Member m1 = new Member("AAA", 10);
+        Member m2 = new Member("AAA", 20);
+
+        memberRepository.save(m1);
+        memberRepository.save(m2);
+
+        List<Member> findMemberList = memberRepository.findListByUsername("AAA");
+        assertThat(findMemberList.size()).isEqualTo(2);
+        assertThat(findMemberList).contains(m1, m2);
+
+        Assertions.assertThrows(IncorrectResultSizeDataAccessException.class,
+                () -> memberRepository.findMemberByUsername("AAA"));
+
+        Assertions.assertThrows(IncorrectResultSizeDataAccessException.class,
+                () -> memberRepository.findOptionalMemberByUsername("AAA"));
     }
 }
