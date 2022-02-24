@@ -17,6 +17,7 @@ class MemberRepositoryTest {
     @Autowired
     MemberRepository memberRepository;
 
+
     @Test
     void testMember() {
         // given
