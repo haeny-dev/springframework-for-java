@@ -23,7 +23,7 @@ public class MemberJpaRepository {
         em.remove(member);
     }
 
-    public List<Member> findAll(){
+    public List<Member> findAll() {
         return em.createQuery("select m from Member m", Member.class)
                 .getResultList();
     }
@@ -32,12 +32,22 @@ public class MemberJpaRepository {
         return Optional.ofNullable(find(id));
     }
 
-    public long count(){
+    public long count() {
         return em.createQuery("select count(m) from Member m", Long.class)
                 .getSingleResult();
     }
 
     public Member find(Long id) {
         return em.find(Member.class, id);
+    }
+
+    public List<Member> findByUsernameAndAgeGreaterThan(String username, int age) {
+        return em.createQuery(
+                "select m from Member m" +
+                        " where m.username = :username" +
+                        " and m.age > :age")
+                .setParameter("username", username)
+                .setParameter("age", age)
+                .getResultList();
     }
 }
