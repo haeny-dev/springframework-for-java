@@ -6,6 +6,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 import study.datajpa.dto.MemberDto;
+import study.datajpa.dto.MemberProjection;
 import study.datajpa.dto.UsernameOnly;
 import study.datajpa.dto.UsernameOnlyDto;
 import study.datajpa.entity.Member;
@@ -83,4 +84,15 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberRep
     /* 동적 Projections, 중첩 구조 처리 */
     <T> List<T> findDynamicProjectionByUsername(String username, Class<T> type);
 
+    /* JPA 네이티브 SQL 지원 */
+    @Query(value = "select * from member where username = ?", nativeQuery = true)
+    Member findByNativeQuery(String username);
+
+    /* JPA 네이티브 쿼리 + 인터페이스 기반 Projections */
+    @Query(value = "select m.member_id as id, m.username, t.name as teamName" +
+            " from member m" +
+            " left join team t",
+            countQuery = "select count(*) from member",
+            nativeQuery = true)
+    Page<MemberProjection> findByNativeProjection(Pageable pageable);
 }
