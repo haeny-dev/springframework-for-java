@@ -14,17 +14,18 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import study.datajpa.dto.MemberDto;
+import study.datajpa.dto.NestedClosedProjection;
+import study.datajpa.dto.UsernameOnly;
+import study.datajpa.dto.UsernameOnlyDto;
 import study.datajpa.entity.Member;
 import study.datajpa.entity.Team;
 
 import javax.persistence.EntityManager;
-import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceUnitUtil;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -361,7 +362,29 @@ class MemberRepositoryTest {
 
         // then
         assertThat(result.size()).isEqualTo(1);
+    }
 
+    @Test
+    void projections() {
+        // given
+        Team teamA = new Team("teamA");
+        em.persist(teamA);
 
+        Member m1 = new Member("m1", 0, teamA);
+        Member m2 = new Member("m2", 0, teamA);
+        em.persist(m1);
+        em.persist(m2);
+
+        em.flush();
+        em.clear();
+
+        // when
+//        List<UsernameOnly> result = memberRepository.findProjectionsByUsername("m1");
+//        List<UsernameOnlyDto> result = memberRepository.findProjectionsDtoByUsername("m1");
+//        List<UsernameOnly> result = memberRepository.findDynamicProjectionByUsername("m1", UsernameOnly.class);
+        List<NestedClosedProjection> result = memberRepository.findDynamicProjectionByUsername("m1", NestedClosedProjection.class);
+
+        // then
+        assertThat(result.get(0).getUsername()).isEqualTo("m1");
     }
 }
