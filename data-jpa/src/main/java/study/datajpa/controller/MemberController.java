@@ -33,7 +33,7 @@ public class MemberController {
         return member.getUsername();
     }
 
-    @PostConstruct
+//    @PostConstruct
     public void init() {
         Team team = new Team("team");
         teamRepository.save(team);
