@@ -9,16 +9,18 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import study.datajpa.dto.MemberDto;
 import study.datajpa.entity.Member;
+import study.datajpa.entity.Team;
 import study.datajpa.repository.MemberRepository;
+import study.datajpa.repository.TeamRepository;
 
 import javax.annotation.PostConstruct;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
 public class MemberController {
 
     private final MemberRepository memberRepository;
+    private final TeamRepository teamRepository;
 
     @GetMapping("/members/{id}")
     public String findMember(@PathVariable("id") Long id) {
@@ -33,8 +35,13 @@ public class MemberController {
 
     @PostConstruct
     public void init() {
+        Team team = new Team("team");
+        teamRepository.save(team);
+
         for (int i = 0; i < 100; i++) {
-            memberRepository.save(new Member("user" + i, i));
+            Member member = new Member("user" + i, i);
+            member.changeTeam(team);
+            memberRepository.save(member);
         }
     }
 

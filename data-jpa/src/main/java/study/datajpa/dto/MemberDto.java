@@ -15,5 +15,6 @@ public class MemberDto {
     public MemberDto(Member member) {
         id = member.getId();
         username = member.getUsername();
+        teamName = member.getTeam().getName();
     }
 }
