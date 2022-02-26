@@ -671,5 +671,41 @@ public class QuerydslBasicTest {
         return usernameCond != null ? member.username.eq(usernameCond) : null;
     }
 
+    @Test
+    void bulkUpdate() {
+        long count = queryFactory
+                .update(member)
+                .set(member.username, "비회원")
+                .where(member.age.lt(28))
+                .execute();
+
+        em.flush();
+        em.clear();
+
+        List<Member> result = queryFactory
+                .selectFrom(member)
+                .fetch();
+
+        for (Member member1 : result) {
+            System.out.println("member1 = " + member1);
+        }
+    }
+
+    @Test
+    void bulkAdd() {
+        queryFactory
+                .update(member)
+                .set(member.age, member.age.add(1))
+                .execute();
+    }
+
+    @Test
+    void bulkDelete() {
+        queryFactory
+                .delete(member)
+                .where(member.age.gt(18))
+                .execute();
+    }
+
 
 }
