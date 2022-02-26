@@ -1,5 +1,6 @@
 package study.querydsl;
 
+import com.querydsl.core.NonUniqueResultException;
 import com.querydsl.core.QueryResults;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.assertj.core.api.Assertions;
@@ -13,11 +14,11 @@ import study.querydsl.entity.QMember;
 import study.querydsl.entity.Team;
 
 import javax.persistence.EntityManager;
-import javax.persistence.NonUniqueResultException;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static study.querydsl.entity.QMember.*;
 
 @SpringBootTest
@@ -100,17 +101,23 @@ public class QuerydslBasicTest {
 
     @Test
     void resultFetch() {
+
+        /* fetch */
         List<Member> fetch = queryFactory
                 .selectFrom(member)
                 .fetch();
 
-        Member fetchOne = queryFactory
-                .selectFrom(member)
-                .fetchOne();
+        assertThat(fetch.size()).isEqualTo(4);
 
-        Member fetchFirst = queryFactory
+        /* fetchOne */
+        assertThrows(NonUniqueResultException.class, () -> queryFactory
                 .selectFrom(member)
-                .fetchFirst();
+                .fetchOne());
+
+        /* fetchFirst */
+        assertDoesNotThrow(() -> queryFactory
+                .selectFrom(member)
+                .fetchFirst());
 
         /* Deprecated
         QueryResults<Member> results = queryFactory
@@ -130,6 +137,8 @@ public class QuerydslBasicTest {
                 .select(member.count())
                 .from(member)
                 .fetchOne();
+
+        assertThat(totalCount).isEqualTo(4);
 
     }
 }
