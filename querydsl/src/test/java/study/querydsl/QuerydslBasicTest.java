@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import study.querydsl.dto.MemberDto;
+import study.querydsl.dto.QMemberDto;
 import study.querydsl.dto.UserDto;
 import study.querydsl.entity.Member;
 import study.querydsl.entity.QMember;
@@ -566,7 +567,6 @@ public class QuerydslBasicTest {
 
     @Test
     void findDtoByFields2() {
-
         QMember memberSub = new QMember("memberSub");
 
         List<UserDto> result = queryFactory
@@ -584,4 +584,36 @@ public class QuerydslBasicTest {
             System.out.println("userDto = " + userDto);
         }
     }
+
+    @Test
+    void findDtoByQueryProjection() {
+        List<MemberDto> result = queryFactory
+                .select(new QMemberDto(member.username, member.age))
+                .from(member)
+                .fetch();
+
+        for (MemberDto memberDto : result) {
+            System.out.println("memberDto = " + memberDto);
+        }
+    }
+
+    @Test
+    void distinct() {
+        em.persist(new Member("member1", 5));
+
+        em.flush();
+        em.clear();
+
+        List<String> result = queryFactory
+                .select(member.username).distinct()
+                .from(member)
+                .fetch();
+
+        for (String s : result) {
+            System.out.println("s = " + s);
+        }
+    }
+
+
+
 }
