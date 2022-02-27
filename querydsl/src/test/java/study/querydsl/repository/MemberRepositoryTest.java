@@ -120,6 +120,7 @@ class MemberRepositoryTest {
         Iterable<Member> result = memberRepository.findAll(
                 member.age.between(10, 40).and(member.username.eq("member1")));
 
+        // then
         if (result.iterator().hasNext()) {
             assertThat(result.iterator().next().getUsername()).isEqualTo("member1");
         }
