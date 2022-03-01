@@ -36,8 +36,14 @@ public class JpaMain {
             /* 영속 엔티티의 동일성 보장 */
             System.out.println("result = " + (findMember1 == findMember2)); // true
 
-            /* 회원 엔티티를 영속성 컨텍스트에서 분리 -> 준영속 상태 */
+            /* 영속상태의 엔티티를 영속성 컨텍스트에서 분리 -> 준영속 상태
 //            em.detach(member);
+
+            // 영속 상태
+            Member findMember1 = em.find(Member.class, 1L);  // 쿼리 발생
+            em.clear(); // 영속성 컨텍스트를 완전히 초기화
+            Member findMember2 = em.find(Member.class, 1L);  // 또 다시 쿼리 발생
+            */
 
             /* 회원 삭제
             Member findMember = em.find(Member.class, 1L);
