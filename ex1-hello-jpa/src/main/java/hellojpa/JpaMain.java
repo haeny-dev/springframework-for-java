@@ -54,7 +54,7 @@ public class JpaMain {
             // 이런 코드가 있어야 하지 않을까..?
             // em.update(findMember)
 
-            /* JPQL */
+            /* JPQL -> 플러시 자동 호출 */
             List<Member> result = em.createQuery("select m from Member m", Member.class)
                     .setFirstResult(1)
                     .setMaxResults(10)
@@ -64,8 +64,14 @@ public class JpaMain {
                 System.out.println("resultMember.getName() = " + resultMember.getName());
             }
 
-            // Commit 하는 순간 데이터베이스에 SQL Query 를 보낸다. -> 트랜잭션을 지원하는 쓰기 지연
+            // Commit 하는 순간 flush 발생
+            // -> 데이터베이스에 SQL Query 를 보낸다.
+            // -> 트랜잭션을 지원하는 쓰기 지연
             transaction.commit();
+
+            /* 플러시 모드 옵션
+             * FlushModeType.AUTO: Commit 이나 Query를 실행할 때 플러시 (기본값)
+             * FlushModeType.COMMIT: Commit 할 때만 플러시 */
         } catch (Exception e) {
             transaction.rollback();
         } finally {
