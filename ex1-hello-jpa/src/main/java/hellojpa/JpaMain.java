@@ -11,37 +11,48 @@ public class JpaMain {
     public static void main(String[] args) {
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("hello");
         EntityManager em = emf.createEntityManager();
-        EntityTransaction tx = em.getTransaction();
-        tx.begin();
+
+        // 엔티티 매니저는 데이터 변경시 트랜잭션을 시작해야 한다.
+        EntityTransaction transaction = em.getTransaction();
+        transaction.begin();    // 트랜잭션 시작
 
         try {
-            /* 회원 등록
+            /* 회원 등록 */
             // 객체를 생성한 상태 -> 비영속
             Member member = new Member();
-            member.setId(2L);
-            member.setName("hello2");
+            member.setId(100L);
+            member.setName("hello100");
 
             // 객체를 저장한 상태 -> 영속
+            // 1차 캐시에 저장됨
+            // 이 순간에 INSERT SQL 를 데이터베이스에 보내지 않는다.
             em.persist(member);
 
-            // 회원 엔티티를 영속성 컨텍스트에서 분리 -> 준영속 상태
-            em.detach(member);
-            */
+            /* 회원 조회 */
+            // 1차 캐시에서 조회
+            Member findMember1 = em.find(Member.class, 100L);
+            Member findMember2 = em.find(Member.class, 100L);
 
-            /* 회원 조회
-            Member findMember = em.find(Member.class, 1L);
-            System.out.println("findMember.getId() = " + findMember.getId());
-            System.out.println("findMember.getName() = " + findMember.getName());*/
+            /* 영속 엔티티의 동일성 보장 */
+            System.out.println("result = " + (findMember1 == findMember2)); // true
+
+            /* 회원 엔티티를 영속성 컨텍스트에서 분리 -> 준영속 상태 */
+//            em.detach(member);
 
             /* 회원 삭제
             Member findMember = em.find(Member.class, 1L);
-
             // 객체를 삭제한 상태 -> 삭제
             em.remove(findMember);*/
 
-            /* 회원 수정
+            /* 회원 수정 */
+            // 영속 엔티티 조회
             Member findMember = em.find(Member.class, 1L);
-            findMember.setName("HelloEdit");*/
+
+            // 영속 엔티티 데이터 수정
+            findMember.setName("HelloEdit");    // dirty checking 을 통해 변경된다...
+
+            // 이런 코드가 있어야 하지 않을까..?
+            // em.update(findMember)
 
             /* JPQL */
             List<Member> result = em.createQuery("select m from Member m", Member.class)
@@ -49,13 +60,14 @@ public class JpaMain {
                     .setMaxResults(10)
                     .getResultList();
 
-            for (Member findMember : result) {
-                System.out.println("findMember.getName() = " + findMember.getName());
+            for (Member resultMember : result) {
+                System.out.println("resultMember.getName() = " + resultMember.getName());
             }
 
-            tx.commit();
+            // Commit 하는 순간 데이터베이스에 SQL Query 를 보낸다. -> 트랜잭션을 지원하는 쓰기 지연
+            transaction.commit();
         } catch (Exception e) {
-            tx.rollback();
+            transaction.rollback();
         } finally {
             em.close();
         }
