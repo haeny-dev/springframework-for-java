@@ -16,10 +16,17 @@ public class JpaMain {
 
         try {
             /* 회원 등록
+            // 객체를 생성한 상태 -> 비영속
             Member member = new Member();
             member.setId(2L);
             member.setName("hello2");
-            em.persist(member);*/
+
+            // 객체를 저장한 상태 -> 영속
+            em.persist(member);
+
+            // 회원 엔티티를 영속성 컨텍스트에서 분리 -> 준영속 상태
+            em.detach(member);
+            */
 
             /* 회원 조회
             Member findMember = em.find(Member.class, 1L);
@@ -28,6 +35,8 @@ public class JpaMain {
 
             /* 회원 삭제
             Member findMember = em.find(Member.class, 1L);
+
+            // 객체를 삭제한 상태 -> 삭제
             em.remove(findMember);*/
 
             /* 회원 수정
