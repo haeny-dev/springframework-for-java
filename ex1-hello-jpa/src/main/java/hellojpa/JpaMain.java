@@ -11,32 +11,33 @@ public class JpaMain {
     public static void main(String[] args) {
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("hello");
         EntityManager em = emf.createEntityManager();
-
-        // 엔티티 매니저는 데이터 변경시 트랜잭션을 시작해야 한다.
         EntityTransaction transaction = em.getTransaction();
         transaction.begin();    // 트랜잭션 시작
 
         try {
-            /**
-             * @GeneratedValue(strategy = GenerationType.IDENTITY)
-             * - JPA는 보통 트랜잭션 커밋 시점에 INSERT SQL 실행
-             * - INDENTITY 전략은 em.persist() 시점에 즉시 INSERT SQL 실행하고 DB에서 식별자 조회
-             *
-             * @GeneratedValue(strategy = GenerationType.SEQUENCE)
-             * - 쿼리가 버퍼링은 가능하다
-             * - em.persist() 시점에 시퀀스 값을 조회하는 쿼리가 발생한다.
-             */
+            Team team = new Team();
+            team.setName("TeamA");
+            em.persist(team);
+
             Member member = new Member();
-            member.setName("haeny");
-
-            System.out.println("==============");
+            member.setUsername("member1");
+//            member.setTeamId(team.getId());
+            member.setTeam(team);
             em.persist(member);
-            System.out.println("member.getId() = " + member.getId());
-            System.out.println("==============");
 
+            em.flush();
+            em.clear();
 
+            // 조회
+            Member findMember = em.find(Member.class, member.getId());
 
+            // 연관관계가 없음
+            Team findTeam = member.getTeam();
+            System.out.println("findTeam.getName() = " + findTeam.getName());
+
+            transaction.commit();
         } catch (Exception e) {
+            e.printStackTrace();
             transaction.rollback();
         } finally {
             em.close();
@@ -45,12 +46,31 @@ public class JpaMain {
         emf.close();
     }
 
+    private static void extracted(EntityManager em) {
+        /**
+         * @GeneratedValue(strategy = GenerationType.IDENTITY)
+         * - JPA는 보통 트랜잭션 커밋 시점에 INSERT SQL 실행
+         * - INDENTITY 전략은 em.persist() 시점에 즉시 INSERT SQL 실행하고 DB에서 식별자 조회
+         *
+         * @GeneratedValue(strategy = GenerationType.SEQUENCE)
+         * - 쿼리가 버퍼링은 가능하다
+         * - em.persist() 시점에 시퀀스 값을 조회하는 쿼리가 발생한다.
+         */
+        Member member = new Member();
+        member.setUsername("haeny");
+
+        System.out.println("==============");
+        em.persist(member);
+        System.out.println("member.getId() = " + member.getId());
+        System.out.println("==============");
+    }
+
     private static void extracted(EntityManager em, EntityTransaction transaction) {
         /* 회원 등록 */
         // 객체를 생성한 상태 -> 비영속
         Member member = new Member();
         member.setId(100L);
-        member.setName("hello100");
+        member.setUsername("hello100");
 
         // 객체를 저장한 상태 -> 영속
         // 1차 캐시에 저장됨
@@ -84,7 +104,7 @@ public class JpaMain {
         Member findMember = em.find(Member.class, 100L);
 
         // 영속 엔티티 데이터 수정
-        findMember.setName("HelloEdit");    // dirty checking 을 통해 변경된다...
+        findMember.setUsername("HelloEdit");    // dirty checking 을 통해 변경된다...
 
         // 이런 코드가 있어야 하지 않을까..?
         // em.update(findMember)
@@ -96,7 +116,7 @@ public class JpaMain {
                 .getResultList();
 
         for (Member resultMember : result) {
-            System.out.println("resultMember.getName() = " + resultMember.getName());
+            System.out.println("resultMember.getName() = " + resultMember.getUsername());
         }
 
         // Commit 하는 순간 flush 발생

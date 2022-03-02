@@ -1,23 +1,41 @@
 package hellojpa;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
  * DDL 생성 기능은 DDL을 자동 생성할 때만 사용되고 JPA의 실행 로직에는 영향을 주지 않는다.
+ *
+ *
+ * //@Table(name = "MBR")
+ * //@Table(uniqueConstraints = {@UniqueConstraint(name = "NAME_AGE_UNIQUE",
+ * //        columnNames = {"NAME", "AGE"})})
+ * //@SequenceGenerator(
+ * //        name = "member_seq_generator",
+ * //        sequenceName = "member_seq",
+ * //        initialValue = 1, allocationSize = 1    // 기본값이 50이므로 시퀀스 값이 1씩 증가하면 1로 설정해야한다.
+ * //)
  */
 @Entity
-//@Table(name = "MBR")
-//@Table(uniqueConstraints = {@UniqueConstraint(name = "NAME_AGE_UNIQUE",
-//        columnNames = {"NAME", "AGE"})})
-//@SequenceGenerator(
-//        name = "member_seq_generator",
-//        sequenceName = "member_seq",
-//        initialValue = 1, allocationSize = 1    // 기본값이 50이므로 시퀀스 값이 1씩 증가하면 1로 설정해야한다.
-//)
+@Getter @Setter
 public class Member {
 
+    @Id @GeneratedValue
+    @Column(name = "member_id")
+    private Long id;
+    private String username;
+    @ManyToOne
+    @JoinColumn(name = "team_id")
+    private Team team;
+
+//    @Column(name = "team_id")
+//    private Long teamId;
+
+/*
     @Id // 직접 할당 시에는 @Id 만 사용
     @GeneratedValue(strategy = GenerationType.AUTO)    // 방언에 따라 자동 지정, 기본값
     // GenerationType.IDENTITY -> 데이터베이스에 위임, MySQL
@@ -54,60 +72,5 @@ public class Member {
 
     @Transient  // 특정 필드를 컬럼에 매핑하지 않음
     private int temp;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Integer getAge() {
-        return age;
-    }
-
-    public void setAge(Integer age) {
-        this.age = age;
-    }
-
-    public RoleType getRoleType() {
-        return roleType;
-    }
-
-    public void setRoleType(RoleType roleType) {
-        this.roleType = roleType;
-    }
-
-    public LocalDateTime getCreatedDate() {
-        return createdDate;
-    }
-
-    public void setCreatedDate(LocalDateTime createdDate) {
-        this.createdDate = createdDate;
-    }
-
-    public LocalDateTime getLastModifiedDate() {
-        return lastModifiedDate;
-    }
-
-    public void setLastModifiedDate(LocalDateTime lastModifiedDate) {
-        this.lastModifiedDate = lastModifiedDate;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
+*/
 }
