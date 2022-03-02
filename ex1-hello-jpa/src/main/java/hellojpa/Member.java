@@ -11,9 +11,18 @@ import java.util.Date;
 //@Table(name = "MBR")
 //@Table(uniqueConstraints = {@UniqueConstraint(name = "NAME_AGE_UNIQUE",
 //        columnNames = {"NAME", "AGE"})})
+//@SequenceGenerator(
+//        name = "member_seq_generator",
+//        sequenceName = "member_seq",
+//        initialValue = 1, allocationSize = 1    // 기본값이 50이므로 시퀀스 값이 1씩 증가하면 1로 설정해야한다.
+//)
 public class Member {
 
-    @Id
+    @Id // 직접 할당 시에는 @Id 만 사용
+    @GeneratedValue(strategy = GenerationType.AUTO)    // 방언에 따라 자동 지정, 기본값
+    // GenerationType.IDENTITY -> 데이터베이스에 위임, MySQL
+    // GenerationType.SEQUENCE -> 데이터베이스 시퀀스 오브젝트 사용, ORACLE -> @SequenceGenerator 필요
+    // GenerationType.TABLE -> 키 생성용 테이블 사용, 모든 DB에서 사용 -> @TableGenerator 필요
     private Long id;
 
     // DDL 생성 기능
@@ -78,19 +87,19 @@ public class Member {
         this.roleType = roleType;
     }
 
-    public Date getCreatedDate() {
+    public LocalDateTime getCreatedDate() {
         return createdDate;
     }
 
-    public void setCreatedDate(Date createdDate) {
+    public void setCreatedDate(LocalDateTime createdDate) {
         this.createdDate = createdDate;
     }
 
-    public Date getLastModifiedDate() {
+    public LocalDateTime getLastModifiedDate() {
         return lastModifiedDate;
     }
 
-    public void setLastModifiedDate(Date lastModifiedDate) {
+    public void setLastModifiedDate(LocalDateTime lastModifiedDate) {
         this.lastModifiedDate = lastModifiedDate;
     }
 
