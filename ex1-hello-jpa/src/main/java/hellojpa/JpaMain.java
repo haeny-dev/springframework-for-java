@@ -15,25 +15,20 @@ public class JpaMain {
         transaction.begin();    // 트랜잭션 시작
 
         try {
-            Team team = new Team();
-            team.setName("TeamA");
-            em.persist(team);
+            Team teamA = new Team();
+            teamA.setName("teamA");
+            em.persist(teamA);
 
-            Member member = new Member();
-            member.setUsername("member1");
-//            member.setTeamId(team.getId());
-            member.setTeam(team);
-            em.persist(member);
+            Member member1 = new Member();
+            member1.setUsername("member1");
+            member1.setTeam(teamA);
+            em.persist(member1);
 
             em.flush();
             em.clear();
 
-            // 조회
-            Member findMember = em.find(Member.class, member.getId());
-
-            // 연관관계가 없음
-            Team findTeam = member.getTeam();
-            System.out.println("findTeam.getName() = " + findTeam.getName());
+            Team findTeam = em.find(Team.class, teamA.getId());
+            findTeam.getMembers().forEach(m -> System.out.println("m.getUsername() = " + m.getUsername()));
 
             transaction.commit();
         } catch (Exception e) {
@@ -44,6 +39,28 @@ public class JpaMain {
         }
 
         emf.close();
+    }
+
+    private static void extracted1(EntityManager em) {
+        Team team = new Team();
+        team.setName("TeamA");
+        em.persist(team);
+
+        Member member = new Member();
+        member.setUsername("member1");
+//            member.setTeamId(team.getId());
+        member.setTeam(team);
+        em.persist(member);
+
+        em.flush();
+        em.clear();
+
+        // 조회
+        Member findMember = em.find(Member.class, member.getId());
+
+        // 연관관계가 없음
+        Team findTeam = member.getTeam();
+        System.out.println("findTeam.getName() = " + findTeam.getName());
     }
 
     private static void extracted(EntityManager em) {
