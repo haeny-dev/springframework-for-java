@@ -52,7 +52,7 @@ public class JpaMain {
 
             /* 회원 수정 */
             // 영속 엔티티 조회
-            Member findMember = em.find(Member.class, 1L);
+            Member findMember = em.find(Member.class, 100L);
 
             // 영속 엔티티 데이터 수정
             findMember.setName("HelloEdit");    // dirty checking 을 통해 변경된다...
