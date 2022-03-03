@@ -32,6 +32,12 @@ public class Member {
     @JoinColumn(name = "team_id")
     private Team team;
 
+    /* 연관관계 편의 메소드 */
+    public void changeTeam(Team team) {
+        this.team = team;
+        team.getMembers().add(this);
+    }
+
 //    @Column(name = "team_id")
 //    private Long teamId;
 

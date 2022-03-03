@@ -21,11 +21,13 @@ public class JpaMain {
 
             Member member1 = new Member();
             member1.setUsername("member1");
-            member1.setTeam(teamA);
+//            member1.setTeam(teamA);
+//            teamA.getMembers().add(member1);
+            member1.changeTeam(teamA);
             em.persist(member1);
 
-            em.flush();
-            em.clear();
+//            em.flush();
+//            em.clear();
 
             Team findTeam = em.find(Team.class, teamA.getId());
             findTeam.getMembers().forEach(m -> System.out.println("m.getUsername() = " + m.getUsername()));
