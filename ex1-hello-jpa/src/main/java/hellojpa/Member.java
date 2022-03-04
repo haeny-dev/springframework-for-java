@@ -33,6 +33,10 @@ public class Member {
     @JoinColumn(name = "team_id", insertable = false, updatable = false)
     private Team team;
 
+    @OneToOne
+    @JoinColumn(name = "locker_id")
+    private Locker locker;
+
 //    /* 연관관계 편의 메소드 */
 //    public void changeTeam(Team team) {
 //        this.team = team;
