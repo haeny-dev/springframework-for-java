@@ -1,5 +1,9 @@
 package hellojpa;
 
+import hellojpa.domain.Member;
+import hellojpa.domain.Team;
+import hellojpa.domain.item.Movie;
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
@@ -15,14 +19,18 @@ public class JpaMain {
         transaction.begin();    // 트랜잭션 시작
 
         try {
-            Member member = new Member();
-            member.setUsername("member1");
-            em.persist(member);
 
-            Team team = new Team();
-            team.setName("teamA");
-            team.getMembers().add(member);
-            em.persist(team);
+            Movie movie = new Movie();
+            movie.setDirector("봉준호");
+            movie.setActor("최우식");
+            movie.setName("기생충");
+            movie.setPrice(15000);
+            em.persist(movie);
+            em.flush();
+            em.clear();
+
+            Movie findMovie = em.find(Movie.class, movie.getId());
+            System.out.println("findMovie.getName() = " + findMovie.getName());
 
             transaction.commit();
         } catch (Exception e) {
@@ -33,6 +41,17 @@ public class JpaMain {
         }
 
         emf.close();
+    }
+
+    private static void extracted3(EntityManager em) {
+        Member member = new Member();
+        member.setUsername("member1");
+        em.persist(member);
+
+        Team team = new Team();
+        team.setName("teamA");
+        team.getMembers().add(member);
+        em.persist(team);
     }
 
     private static void extracted2(EntityManager em) {
