@@ -8,6 +8,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class JpaMain {
@@ -19,18 +20,15 @@ public class JpaMain {
         transaction.begin();    // 트랜잭션 시작
 
         try {
+            Member member = new Member();
+            member.setUsername("user");
+            member.setCreatedBy("jeong");
+            member.setCreatedDate(LocalDateTime.now());
 
-            Movie movie = new Movie();
-            movie.setDirector("봉준호");
-            movie.setActor("최우식");
-            movie.setName("기생충");
-            movie.setPrice(15000);
-            em.persist(movie);
+            em.persist(member);
             em.flush();
             em.clear();
 
-            Movie findMovie = em.find(Movie.class, movie.getId());
-            System.out.println("findMovie.getName() = " + findMovie.getName());
 
             transaction.commit();
         } catch (Exception e) {
@@ -41,6 +39,20 @@ public class JpaMain {
         }
 
         emf.close();
+    }
+
+    private static void extracted4(EntityManager em) {
+        Movie movie = new Movie();
+        movie.setDirector("봉준호");
+        movie.setActor("최우식");
+        movie.setName("기생충");
+        movie.setPrice(15000);
+        em.persist(movie);
+        em.flush();
+        em.clear();
+
+        Movie findMovie = em.find(Movie.class, movie.getId());
+        System.out.println("findMovie.getName() = " + findMovie.getName());
     }
 
     private static void extracted3(EntityManager em) {
