@@ -28,15 +28,16 @@ public class Member {
     @Column(name = "member_id")
     private Long id;
     private String username;
+
     @ManyToOne
-    @JoinColumn(name = "team_id")
+    @JoinColumn(name = "team_id", insertable = false, updatable = false)
     private Team team;
 
-    /* 연관관계 편의 메소드 */
-    public void changeTeam(Team team) {
-        this.team = team;
-        team.getMembers().add(this);
-    }
+//    /* 연관관계 편의 메소드 */
+//    public void changeTeam(Team team) {
+//        this.team = team;
+//        team.getMembers().add(this);
+//    }
 
 //    @Column(name = "team_id")
 //    private Long teamId;
