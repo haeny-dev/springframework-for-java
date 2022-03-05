@@ -1,6 +1,7 @@
 package jpabook.jpashop;
 
 import jpabook.jpashop.domain.Book;
+import jpabook.jpashop.domain.Member;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -15,11 +16,7 @@ public class JpaMain {
         transaction.begin();    // 트랜잭션 시작
 
         try {
-            Book book = new Book();
-            book.setName("JPA");
-            book.setAuthor("김영한");
 
-            em.persist(book);
 
             transaction.commit();
         } catch (Exception e) {

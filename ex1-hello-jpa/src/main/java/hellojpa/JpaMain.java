@@ -20,14 +20,20 @@ public class JpaMain {
         transaction.begin();    // 트랜잭션 시작
 
         try {
-            Member member = new Member();
-            member.setUsername("user");
-            member.setCreatedBy("jeong");
-            member.setCreatedDate(LocalDateTime.now());
-
-            em.persist(member);
+            Member member1 = new Member();
+            member1.setUsername("member1");
+            em.persist(member1);
+            
             em.flush();
             em.clear();
+
+            Member refMember = em.getReference(Member.class, member1.getId());
+            System.out.println("refMember.getClass() = " + refMember.getClass());
+
+            Member findMember = em.find(Member.class, member1.getId());
+            System.out.println("findMember.getClass() = " + findMember.getClass());
+
+            System.out.println("(refMember == findMember) = " + (refMember == findMember));
 
 
             transaction.commit();
