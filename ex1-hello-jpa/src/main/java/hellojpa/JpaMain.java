@@ -1,6 +1,8 @@
 package hellojpa;
 
+import hellojpa.domain.Child;
 import hellojpa.domain.Member;
+import hellojpa.domain.Parent;
 import hellojpa.domain.Team;
 import hellojpa.domain.item.Movie;
 
@@ -20,38 +22,20 @@ public class JpaMain {
         transaction.begin();    // 트랜잭션 시작
 
         try {
-            Team teamA = new Team();
-            teamA.setName("teamA");
-            em.persist(teamA);
+            Child child1 = new Child();
+            Child child2 = new Child();
 
-            Team teamB = new Team();
-            teamB.setName("teamB");
-            em.persist(teamB);
-            
-            Member member1 = new Member();
-            member1.setUsername("member1");
-            member1.setTeam(teamA);
-            em.persist(member1);
+            Parent parent = new Parent();
+            parent.addChild(child1);
+            parent.addChild(child2);
 
-            Member member2 = new Member();
-            member2.setUsername("member2");
-            member2.setTeam(teamB);
-            em.persist(member2);
+            em.persist(parent);
 
             em.flush();
             em.clear();
 
-//            Member findMember = em.find(Member.class, member.getId());
-//            System.out.println("findMember.getTeam().getClass() = " + findMember.getTeam().getClass());
-//            System.out.println("findMember.getTeam().getName() = " + findMember.getTeam().getName());
-
-            // Team 의 FetchType.EAGER 일 때 N + 1 문제를 발생시킨다.
-//            List<Member> members = em.createQuery("select m from Member m", Member.class)
-//                    .getResultList();
-
-            // #1
-            List<Member> members = em.createQuery("select m from Member m join fetch m.team", Member.class)
-                    .getResultList();
+            Parent findParent = em.find(Parent.class, parent.getId());
+            findParent.getChildList().remove(0);
 
             transaction.commit();
         } catch (Exception e) {
@@ -62,6 +46,41 @@ public class JpaMain {
         }
 
         emf.close();
+    }
+
+    private static void lazyloading(EntityManager em) {
+        Team teamA = new Team();
+        teamA.setName("teamA");
+        em.persist(teamA);
+
+        Team teamB = new Team();
+        teamB.setName("teamB");
+        em.persist(teamB);
+
+        Member member1 = new Member();
+        member1.setUsername("member1");
+        member1.setTeam(teamA);
+        em.persist(member1);
+
+        Member member2 = new Member();
+        member2.setUsername("member2");
+        member2.setTeam(teamB);
+        em.persist(member2);
+
+        em.flush();
+        em.clear();
+
+//            Member findMember = em.find(Member.class, member.getId());
+//            System.out.println("findMember.getTeam().getClass() = " + findMember.getTeam().getClass());
+//            System.out.println("findMember.getTeam().getName() = " + findMember.getTeam().getName());
+
+        // Team 의 FetchType.EAGER 일 때 N + 1 문제를 발생시킨다.
+//            List<Member> members = em.createQuery("select m from Member m", Member.class)
+//                    .getResultList();
+
+        // #1
+        List<Member> members = em.createQuery("select m from Member m join fetch m.team", Member.class)
+                .getResultList();
     }
 
     private static void proxy(EntityManager em) {
