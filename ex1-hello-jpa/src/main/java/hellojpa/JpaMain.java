@@ -20,21 +20,38 @@ public class JpaMain {
         transaction.begin();    // 트랜잭션 시작
 
         try {
+            Team teamA = new Team();
+            teamA.setName("teamA");
+            em.persist(teamA);
+
+            Team teamB = new Team();
+            teamB.setName("teamB");
+            em.persist(teamB);
+            
             Member member1 = new Member();
             member1.setUsername("member1");
+            member1.setTeam(teamA);
             em.persist(member1);
-            
+
+            Member member2 = new Member();
+            member2.setUsername("member2");
+            member2.setTeam(teamB);
+            em.persist(member2);
+
             em.flush();
             em.clear();
 
-            Member refMember = em.getReference(Member.class, member1.getId());
-            System.out.println("refMember.getClass() = " + refMember.getClass());
+//            Member findMember = em.find(Member.class, member.getId());
+//            System.out.println("findMember.getTeam().getClass() = " + findMember.getTeam().getClass());
+//            System.out.println("findMember.getTeam().getName() = " + findMember.getTeam().getName());
 
-            Member findMember = em.find(Member.class, member1.getId());
-            System.out.println("findMember.getClass() = " + findMember.getClass());
+            // Team 의 FetchType.EAGER 일 때 N + 1 문제를 발생시킨다.
+//            List<Member> members = em.createQuery("select m from Member m", Member.class)
+//                    .getResultList();
 
-            System.out.println("(refMember == findMember) = " + (refMember == findMember));
-
+            // #1
+            List<Member> members = em.createQuery("select m from Member m join fetch m.team", Member.class)
+                    .getResultList();
 
             transaction.commit();
         } catch (Exception e) {
@@ -45,6 +62,23 @@ public class JpaMain {
         }
 
         emf.close();
+    }
+
+    private static void proxy(EntityManager em) {
+        Member member1 = new Member();
+        member1.setUsername("member1");
+        em.persist(member1);
+
+        em.flush();
+        em.clear();
+
+        Member refMember = em.getReference(Member.class, member1.getId());
+        System.out.println("refMember.getClass() = " + refMember.getClass());
+
+        Member findMember = em.find(Member.class, member1.getId());
+        System.out.println("findMember.getClass() = " + findMember.getClass());
+
+        System.out.println("(refMember == findMember) = " + (refMember == findMember));
     }
 
     private static void extracted4(EntityManager em) {
