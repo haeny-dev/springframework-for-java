@@ -14,24 +14,18 @@ public class JpqlMain {
         EntityTransaction transaction = em.getTransaction();
         transaction.begin();
         try {
-            for (int i = 0; i < 100; i++) {
-                Member member = new Member();
-                member.setUsername("member" + (i + 1));
-                member.setAge(i + 1);
-                em.persist(member);
+            Member memberA = new Member();
+            memberA.setUsername("member");
+            memberA.setAge(10);
+            memberA.setMemberType(MemberType.ADMIN);
+            em.persist(memberA);
 
-                if (i % 2 == 0) {
-                    Order order = new Order();
-                    order.setMember(member);
-                    em.persist(order);
-                }
-            }
+            em.flush();
+            em.clear();
 
-            em.createQuery("select m from Member m where m.age > (select avg(m2.age) from Member m2)", Member.class)
+            em.createQuery("select m from Member m where m.memberType = jpql.domain.MemberType.ADMIN", Member.class)
                     .getResultList();
 
-            em.createQuery("select m from Member m where (select count(o) from Order o where m = o.member) > 0", Member.class)
-                    .getResultList();
 
             transaction.commit();
         } catch (Exception e) {
@@ -40,6 +34,27 @@ public class JpqlMain {
         } finally {
             em.close();
         }
+    }
+
+    private static void subquery(EntityManager em) {
+        for (int i = 0; i < 100; i++) {
+            Member member = new Member();
+            member.setUsername("member" + (i + 1));
+            member.setAge(i + 1);
+            em.persist(member);
+
+            if (i % 2 == 0) {
+                Order order = new Order();
+                order.setMember(member);
+                em.persist(order);
+            }
+        }
+
+        em.createQuery("select m from Member m where m.age > (select avg(m2.age) from Member m2)", Member.class)
+                .getResultList();
+
+        em.createQuery("select m from Member m where (select count(o) from Order o where m = o.member) > 0", Member.class)
+                .getResultList();
     }
 
     private static void join(EntityManager em) {

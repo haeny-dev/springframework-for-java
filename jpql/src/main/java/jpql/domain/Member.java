@@ -17,6 +17,9 @@ public class Member {
     private String username;
     private int age;
 
+    @Enumerated(EnumType.STRING)
+    private MemberType memberType;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_id")
     private Team team;
