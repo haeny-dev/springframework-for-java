@@ -17,21 +17,41 @@ public class JpqlMain {
         EntityTransaction transaction = em.getTransaction();
         transaction.begin();
         try {
-            for (int i = 0; i < 100; i++) {
-                Member member = new Member();
-                member.setUsername("member" + (i + 1));
-                member.setAge(i+1);
-                em.persist(member);
-            }
+            Team teamA = new Team();
+            teamA.setName("teamA");
+            em.persist(teamA);
+
+            Team teamB = new Team();
+            teamB.setName("teamB");
+            em.persist(teamB);
+
+            Member memberA = new Member();
+            memberA.setUsername("teamA");
+            memberA.setAge(10);
+            memberA.setTeam(teamA);
+            em.persist(memberA);
+
             em.flush();
             em.clear();
 
-            List<Member> result = em.createQuery("select m from Member m order by m.age desc", Member.class)
-                    .setFirstResult(0)
-                    .setMaxResults(10)
+            // 내부 조인
+            em.createQuery("select m from Member m inner join m.team t", Member.class)
                     .getResultList();
 
-            result.forEach(System.out::println);
+            // 외부 조인
+            em.createQuery("select m from Member m left outer join m.team t", Member.class)
+                    .getResultList();
+
+            // 세타 조인
+            em.createQuery("select count(m) from Member m, Team t where m.username = t.name")
+                    .getSingleResult();
+
+            // On절 활용 - 조인 대상 필터링
+            em.createQuery("select m from Member m left join m.team t on t.name = 'teamA'", Member.class)
+                    .getResultList();
+
+            // On절 활용 - 연관관계 없는 엔티티 외부 조인
+            em.createQuery("select m from Member m left join Team t on m.username = t.name", Member.class);
 
             transaction.commit();
         } catch (Exception e) {
@@ -40,6 +60,24 @@ public class JpqlMain {
         } finally {
             em.close();
         }
+    }
+
+    private static void paging(EntityManager em) {
+        for (int i = 0; i < 100; i++) {
+            Member member = new Member();
+            member.setUsername("member" + (i + 1));
+            member.setAge(i + 1);
+            em.persist(member);
+        }
+        em.flush();
+        em.clear();
+
+        List<Member> result = em.createQuery("select m from Member m order by m.age desc", Member.class)
+                .setFirstResult(0)
+                .setMaxResults(10)
+                .getResultList();
+
+        result.forEach(System.out::println);
     }
 
     private static void projection(EntityManager em) {
