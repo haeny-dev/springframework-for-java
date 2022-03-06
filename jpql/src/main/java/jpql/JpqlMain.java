@@ -17,7 +17,21 @@ public class JpqlMain {
         EntityTransaction transaction = em.getTransaction();
         transaction.begin();
         try {
-            projection(em);
+            for (int i = 0; i < 100; i++) {
+                Member member = new Member();
+                member.setUsername("member" + (i + 1));
+                member.setAge(i+1);
+                em.persist(member);
+            }
+            em.flush();
+            em.clear();
+
+            List<Member> result = em.createQuery("select m from Member m order by m.age desc", Member.class)
+                    .setFirstResult(0)
+                    .setMaxResults(10)
+                    .getResultList();
+
+            result.forEach(System.out::println);
 
             transaction.commit();
         } catch (Exception e) {
