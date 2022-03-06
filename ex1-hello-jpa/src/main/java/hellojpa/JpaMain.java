@@ -19,14 +19,22 @@ public class JpaMain {
         transaction.begin();    // 트랜잭션 시작
 
         try {
-            Member member = new Member();
-            member.setUsername("hello");
-            member.setHomeAddress(new Address("seoul", "street", "zipcode"));
-            member.setPeriod(new Period(LocalDateTime.now()));
-            em.persist(member);
+            Address address = new Address("seoul", "street", "zipcode");
 
-            Member findMember = em.find(Member.class, member.getId());
+            Member member1 = new Member();
+            member1.setUsername("member1");
+            member1.setHomeAddress(address);
+            em.persist(member1);
 
+            Address copyAddress = new Address(address.getCity(), address.getStreet(), address.getZipcode());
+
+            Member member2 = new Member();
+            member2.setUsername("member2");
+            member2.setHomeAddress(copyAddress);
+            em.persist(member2);
+
+            Member findMember = em.find(Member.class, member1.getId());
+//            findMember.getHomeAddress().setCity("Busan");
 
             transaction.commit();
         } catch (Exception e) {
