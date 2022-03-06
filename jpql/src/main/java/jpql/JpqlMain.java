@@ -14,20 +14,32 @@ public class JpqlMain {
         EntityTransaction transaction = em.getTransaction();
         transaction.begin();
         try {
+            Team team = new Team();
+            team.setName("teamA");
+            em.persist(team);
+
             Member member1 = new Member();
             member1.setUsername("member1");
             member1.setAge(10);
+            member1.setTeam(team);
             em.persist(member1);
 
-            Member member2 = new Member();
-            member2.setUsername("member2");
-            member2.setAge(10);
-            em.persist(member2);
-            em.flush();
-            em.clear();
+            // 상태 필드 경로 탐색
+            em.createQuery("select m.username from Member m", String.class).getResultList();
 
-            em.createQuery("select function('group_concat', m.username) from Member m")
-                    .getResultList();
+            // 단일 값 연관 경로 탐색
+            em.createQuery("select m.team from Member m", Team.class).getResultList();
+            // -> 묵시적 조인: 경로 표현식에 의해 묵시적으로 SQL 조인 발생
+
+            // 명시적 조인
+            em.createQuery("select m from Member m join m.team t", Member.class).getResultList();
+
+            // 컬렉션 값 연관 경로
+//            em.createQuery("select t.members.username from Team t")   // 실패
+
+            em.createQuery("select m.username from Team t join t.members m").getResultList();   // 성공
+
+
 
             transaction.commit();
         } catch (Exception e) {
@@ -36,6 +48,23 @@ public class JpqlMain {
         } finally {
             em.close();
         }
+    }
+
+    private static void jpqlFunction(EntityManager em) {
+        Member member1 = new Member();
+        member1.setUsername("member1");
+        member1.setAge(10);
+        em.persist(member1);
+
+        Member member2 = new Member();
+        member2.setUsername("member2");
+        member2.setAge(10);
+        em.persist(member2);
+        em.flush();
+        em.clear();
+
+        em.createQuery("select function('group_concat', m.username) from Member m")
+                .getResultList();
     }
 
     private static void caseStatement(EntityManager em) {

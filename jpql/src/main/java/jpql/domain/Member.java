@@ -25,6 +25,6 @@ public class Member {
     private Team team;
 
     @OneToMany(mappedBy = "member")
-    private List<Order> orderList;
+    private List<Order> orders;
 
 }
