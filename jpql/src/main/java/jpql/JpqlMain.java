@@ -14,16 +14,34 @@ public class JpqlMain {
         EntityTransaction transaction = em.getTransaction();
         transaction.begin();
         try {
+            Team teamA = new Team();
+            teamA.setName("teamA");
+            em.persist(teamA);
+
+            Team teamB = new Team();
+            teamB.setName("teamB");
+            em.persist(teamB);
+
             Member memberA = new Member();
-            memberA.setUsername("member");
+            memberA.setUsername("teamA");
             memberA.setAge(10);
-            memberA.setMemberType(MemberType.ADMIN);
+            memberA.setTeam(teamA);
             em.persist(memberA);
 
             em.flush();
             em.clear();
 
-            em.createQuery("select m from Member m where m.memberType = jpql.domain.MemberType.ADMIN", Member.class)
+            em.createQuery("select" +
+                    " case when m.age <= 10 then '학생요금'" +
+                    "      when m.age >= 60 then '경로요금'" +
+                    "      else '일반요금'" +
+                    " end" +
+                    " from Member m").getResultList();
+
+            em.createQuery("select coalesce(m.username, '이름 없는 회원') from Member m")
+                    .getResultList();
+
+            em.createQuery("select nullif(m.username, '관리자') from Member m")
                     .getResultList();
 
 
@@ -34,6 +52,19 @@ public class JpqlMain {
         } finally {
             em.close();
         }
+    }
+
+    private static void enumStatement(EntityManager em) {
+        Member memberA = new Member();
+        memberA.setUsername("member");
+        memberA.setAge(10);
+        memberA.setMemberType(MemberType.ADMIN);
+        em.persist(memberA);
+        em.flush();
+        em.clear();
+
+        em.createQuery("select m from Member m where m.memberType = jpql.domain.MemberType.ADMIN", Member.class)
+                .getResultList();
     }
 
     private static void subquery(EntityManager em) {
