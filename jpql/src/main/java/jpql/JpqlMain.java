@@ -1,9 +1,6 @@
 package jpql;
 
-import jpql.domain.Address;
-import jpql.domain.Member;
-import jpql.domain.MemberDTO;
-import jpql.domain.Team;
+import jpql.domain.*;
 
 import javax.persistence.*;
 import java.util.List;
@@ -17,41 +14,24 @@ public class JpqlMain {
         EntityTransaction transaction = em.getTransaction();
         transaction.begin();
         try {
-            Team teamA = new Team();
-            teamA.setName("teamA");
-            em.persist(teamA);
+            for (int i = 0; i < 100; i++) {
+                Member member = new Member();
+                member.setUsername("member" + (i + 1));
+                member.setAge(i + 1);
+                em.persist(member);
 
-            Team teamB = new Team();
-            teamB.setName("teamB");
-            em.persist(teamB);
+                if (i % 2 == 0) {
+                    Order order = new Order();
+                    order.setMember(member);
+                    em.persist(order);
+                }
+            }
 
-            Member memberA = new Member();
-            memberA.setUsername("teamA");
-            memberA.setAge(10);
-            memberA.setTeam(teamA);
-            em.persist(memberA);
-
-            em.flush();
-            em.clear();
-
-            // 내부 조인
-            em.createQuery("select m from Member m inner join m.team t", Member.class)
+            em.createQuery("select m from Member m where m.age > (select avg(m2.age) from Member m2)", Member.class)
                     .getResultList();
 
-            // 외부 조인
-            em.createQuery("select m from Member m left outer join m.team t", Member.class)
+            em.createQuery("select m from Member m where (select count(o) from Order o where m = o.member) > 0", Member.class)
                     .getResultList();
-
-            // 세타 조인
-            em.createQuery("select count(m) from Member m, Team t where m.username = t.name")
-                    .getSingleResult();
-
-            // On절 활용 - 조인 대상 필터링
-            em.createQuery("select m from Member m left join m.team t on t.name = 'teamA'", Member.class)
-                    .getResultList();
-
-            // On절 활용 - 연관관계 없는 엔티티 외부 조인
-            em.createQuery("select m from Member m left join Team t on m.username = t.name", Member.class);
 
             transaction.commit();
         } catch (Exception e) {
@@ -60,6 +40,44 @@ public class JpqlMain {
         } finally {
             em.close();
         }
+    }
+
+    private static void join(EntityManager em) {
+        Team teamA = new Team();
+        teamA.setName("teamA");
+        em.persist(teamA);
+
+        Team teamB = new Team();
+        teamB.setName("teamB");
+        em.persist(teamB);
+
+        Member memberA = new Member();
+        memberA.setUsername("teamA");
+        memberA.setAge(10);
+        memberA.setTeam(teamA);
+        em.persist(memberA);
+
+        em.flush();
+        em.clear();
+
+        // 내부 조인
+        em.createQuery("select m from Member m inner join m.team t", Member.class)
+                .getResultList();
+
+        // 외부 조인
+        em.createQuery("select m from Member m left outer join m.team t", Member.class)
+                .getResultList();
+
+        // 세타 조인
+        em.createQuery("select count(m) from Member m, Team t where m.username = t.name")
+                .getSingleResult();
+
+        // On절 활용 - 조인 대상 필터링
+        em.createQuery("select m from Member m left join m.team t on t.name = 'teamA'", Member.class)
+                .getResultList();
+
+        // On절 활용 - 연관관계 없는 엔티티 외부 조인
+        em.createQuery("select m from Member m left join Team t on m.username = t.name", Member.class);
     }
 
     private static void paging(EntityManager em) {
