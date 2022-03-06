@@ -1,9 +1,6 @@
 package hellojpa;
 
-import hellojpa.domain.Child;
-import hellojpa.domain.Member;
-import hellojpa.domain.Parent;
-import hellojpa.domain.Team;
+import hellojpa.domain.*;
 import hellojpa.domain.item.Movie;
 
 import javax.persistence.EntityManager;
@@ -22,20 +19,14 @@ public class JpaMain {
         transaction.begin();    // 트랜잭션 시작
 
         try {
-            Child child1 = new Child();
-            Child child2 = new Child();
+            Member member = new Member();
+            member.setUsername("hello");
+            member.setHomeAddress(new Address("seoul", "street", "zipcode"));
+            member.setPeriod(new Period(LocalDateTime.now()));
+            em.persist(member);
 
-            Parent parent = new Parent();
-            parent.addChild(child1);
-            parent.addChild(child2);
+            Member findMember = em.find(Member.class, member.getId());
 
-            em.persist(parent);
-
-            em.flush();
-            em.clear();
-
-            Parent findParent = em.find(Parent.class, parent.getId());
-            findParent.getChildList().remove(0);
 
             transaction.commit();
         } catch (Exception e) {
@@ -46,6 +37,23 @@ public class JpaMain {
         }
 
         emf.close();
+    }
+
+    private static void cascade(EntityManager em) {
+        Child child1 = new Child();
+        Child child2 = new Child();
+
+        Parent parent = new Parent();
+        parent.addChild(child1);
+        parent.addChild(child2);
+
+        em.persist(parent);
+
+        em.flush();
+        em.clear();
+
+        Parent findParent = em.find(Parent.class, parent.getId());
+        findParent.getChildList().remove(0);
     }
 
     private static void lazyloading(EntityManager em) {
