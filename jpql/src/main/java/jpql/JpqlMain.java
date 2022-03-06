@@ -14,36 +14,20 @@ public class JpqlMain {
         EntityTransaction transaction = em.getTransaction();
         transaction.begin();
         try {
-            Team teamA = new Team();
-            teamA.setName("teamA");
-            em.persist(teamA);
+            Member member1 = new Member();
+            member1.setUsername("member1");
+            member1.setAge(10);
+            em.persist(member1);
 
-            Team teamB = new Team();
-            teamB.setName("teamB");
-            em.persist(teamB);
-
-            Member memberA = new Member();
-            memberA.setUsername("teamA");
-            memberA.setAge(10);
-            memberA.setTeam(teamA);
-            em.persist(memberA);
-
+            Member member2 = new Member();
+            member2.setUsername("member2");
+            member2.setAge(10);
+            em.persist(member2);
             em.flush();
             em.clear();
 
-            em.createQuery("select" +
-                    " case when m.age <= 10 then '학생요금'" +
-                    "      when m.age >= 60 then '경로요금'" +
-                    "      else '일반요금'" +
-                    " end" +
-                    " from Member m").getResultList();
-
-            em.createQuery("select coalesce(m.username, '이름 없는 회원') from Member m")
+            em.createQuery("select function('group_concat', m.username) from Member m")
                     .getResultList();
-
-            em.createQuery("select nullif(m.username, '관리자') from Member m")
-                    .getResultList();
-
 
             transaction.commit();
         } catch (Exception e) {
@@ -52,6 +36,38 @@ public class JpqlMain {
         } finally {
             em.close();
         }
+    }
+
+    private static void caseStatement(EntityManager em) {
+        Team teamA = new Team();
+        teamA.setName("teamA");
+        em.persist(teamA);
+
+        Team teamB = new Team();
+        teamB.setName("teamB");
+        em.persist(teamB);
+
+        Member memberA = new Member();
+        memberA.setUsername("teamA");
+        memberA.setAge(10);
+        memberA.setTeam(teamA);
+        em.persist(memberA);
+
+        em.flush();
+        em.clear();
+
+        em.createQuery("select" +
+                " case when m.age <= 10 then '학생요금'" +
+                "      when m.age >= 60 then '경로요금'" +
+                "      else '일반요금'" +
+                " end" +
+                " from Member m").getResultList();
+
+        em.createQuery("select coalesce(m.username, '이름 없는 회원') from Member m")
+                .getResultList();
+
+        em.createQuery("select nullif(m.username, '관리자') from Member m")
+                .getResultList();
     }
 
     private static void enumStatement(EntityManager em) {
