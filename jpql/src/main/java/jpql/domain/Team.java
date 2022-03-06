@@ -13,6 +13,7 @@ public class Team {
 
     @Id
     @GeneratedValue
+
     private Long id;
     private String name;
 

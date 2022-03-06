@@ -14,32 +14,44 @@ public class JpqlMain {
         EntityTransaction transaction = em.getTransaction();
         transaction.begin();
         try {
-            Team team = new Team();
-            team.setName("teamA");
-            em.persist(team);
+            Team teamA = new Team();
+            teamA.setName("팀A");
+            em.persist(teamA);
+
+            Team teamB = new Team();
+            teamB.setName("팀B");
+            em.persist(teamB);
 
             Member member1 = new Member();
-            member1.setUsername("member1");
-            member1.setAge(10);
-            member1.setTeam(team);
+            member1.setUsername("회원1");
+            member1.setTeam(teamA);
             em.persist(member1);
 
-            // 상태 필드 경로 탐색
-            em.createQuery("select m.username from Member m", String.class).getResultList();
+            Member member2 = new Member();
+            member2.setUsername("회원2");
+            member2.setTeam(teamA);
+            em.persist(member2);
 
-            // 단일 값 연관 경로 탐색
-            em.createQuery("select m.team from Member m", Team.class).getResultList();
-            // -> 묵시적 조인: 경로 표현식에 의해 묵시적으로 SQL 조인 발생
+            Member member3 = new Member();
+            member3.setUsername("회원3");
+            member3.setTeam(teamB);
+            em.persist(member3);
 
-            // 명시적 조인
-            em.createQuery("select m from Member m join m.team t", Member.class).getResultList();
+            em.flush();
+            em.clear();
 
-            // 컬렉션 값 연관 경로
-//            em.createQuery("select t.members.username from Team t")   // 실패
+            List<Member> members = em.createQuery("select m from Member m join fetch m.team", Member.class)
+                    .getResultList();
 
-            em.createQuery("select m.username from Team t join t.members m").getResultList();   // 성공
+            members.forEach(member -> System.out.println("member.getUsername() , member.getTeam().getName() = " + member.getUsername() + "," + member.getTeam().getName()));
 
+            List<Team> teams = em.createQuery("select distinct t from Team t join fetch t.members", Team.class).getResultList();
 
+            teams.forEach(team -> {
+                team.getMembers().forEach(member -> {
+                    System.out.println("team.getName() + \",\" + member.getUsername() = " + team.getName() + "," + member.getUsername());
+                });
+            });
 
             transaction.commit();
         } catch (Exception e) {
@@ -48,6 +60,33 @@ public class JpqlMain {
         } finally {
             em.close();
         }
+    }
+
+    private static void pathExpression(EntityManager em) {
+        Team team = new Team();
+        team.setName("teamA");
+        em.persist(team);
+
+        Member member1 = new Member();
+        member1.setUsername("member1");
+        member1.setAge(10);
+        member1.setTeam(team);
+        em.persist(member1);
+
+        // 상태 필드 경로 탐색
+        em.createQuery("select m.username from Member m", String.class).getResultList();
+
+        // 단일 값 연관 경로 탐색
+        em.createQuery("select m.team from Member m", Team.class).getResultList();
+        // -> 묵시적 조인: 경로 표현식에 의해 묵시적으로 SQL 조인 발생
+
+        // 명시적 조인
+        em.createQuery("select m from Member m join m.team t", Member.class).getResultList();
+
+        // 컬렉션 값 연관 경로
+//            em.createQuery("select t.members.username from Team t")   // 실패
+
+        em.createQuery("select m.username from Team t join t.members m").getResultList();   // 성공
     }
 
     private static void jpqlFunction(EntityManager em) {
