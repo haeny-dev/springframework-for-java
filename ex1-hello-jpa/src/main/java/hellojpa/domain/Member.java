@@ -7,12 +7,14 @@ import lombok.Setter;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * DDL 생성 기능은 DDL을 자동 생성할 때만 사용되고 JPA의 실행 로직에는 영향을 주지 않는다.
- *
- *
+ * <p>
+ * <p>
  * //@Table(name = "MBR")
  * //@Table(uniqueConstraints = {@UniqueConstraint(name = "NAME_AGE_UNIQUE",
  * //        columnNames = {"NAME", "AGE"})})
@@ -23,10 +25,12 @@ import java.util.List;
  * //)
  */
 @Entity
-@Getter @Setter
+@Getter
+@Setter
 public class Member extends BaseEntity {
 
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue
     @Column(name = "member_id")
     private Long id;
     private String username;
@@ -35,20 +39,33 @@ public class Member extends BaseEntity {
     @JoinColumn(name = "team_id")
     private Team team;
 
+    // 주소 Address
+    @Embedded
+    private Address homeAddress;
+
+    @ElementCollection
+    @CollectionTable(name = "favorite_food",
+            joinColumns = @JoinColumn(name = "member_id"))
+    @Column(name = "food_name")
+    private Set<String> favoriteFoods = new HashSet<>();
+
+//    @ElementCollection
+//    @CollectionTable(name = "address",
+//            joinColumns = @JoinColumn(name = "member_id"))
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "member_id")
+    private List<AddressEntity> addressHistory = new ArrayList<>();
+
+    // 기간 Period
+    @Embedded
+    private Period period;
+
     @OneToOne
     @JoinColumn(name = "locker_id")
     private Locker locker;
 
     @OneToMany(mappedBy = "member")
     private List<MemberProduct> memberProducts = new ArrayList<>();
-
-    // 기간 Period
-    @Embedded
-    private Period period;
-
-    // 주소 Address
-    @Embedded
-    private Address homeAddress;
 
 //    @Embedded
 //    @AttributeOverrides({

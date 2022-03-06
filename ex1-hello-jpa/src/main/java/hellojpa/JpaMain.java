@@ -19,22 +19,40 @@ public class JpaMain {
         transaction.begin();    // 트랜잭션 시작
 
         try {
-            Address address = new Address("seoul", "street", "zipcode");
+            Address address = new Address("seoul", "street", "14582");
 
             Member member1 = new Member();
             member1.setUsername("member1");
             member1.setHomeAddress(address);
+
+            member1.getFavoriteFoods().add("치킨");
+            member1.getFavoriteFoods().add("탕수육");
+            member1.getFavoriteFoods().add("족발");
+
+            AddressEntity old1 = new AddressEntity(new Address("old1", "street", "13234"));
+            AddressEntity old2 = new AddressEntity(new Address("old2", "street", "13234"));
+            member1.getAddressHistory().add(old1);
+            member1.getAddressHistory().add(old2);
             em.persist(member1);
-
-            Address copyAddress = new Address(address.getCity(), address.getStreet(), address.getZipcode());
-
-            Member member2 = new Member();
-            member2.setUsername("member2");
-            member2.setHomeAddress(copyAddress);
-            em.persist(member2);
+            em.flush();
+            em.clear();
 
             Member findMember = em.find(Member.class, member1.getId());
-//            findMember.getHomeAddress().setCity("Busan");
+
+            findMember.getFavoriteFoods().forEach(System.out::println);
+            findMember.getAddressHistory().stream().map(AddressEntity::getAddress).forEach(a -> {
+                System.out.println("address.getCity() = " + a.getCity());
+                System.out.println("address.getStreet() = " + a.getStreet());
+                System.out.println("address.getZipcode() = " + a.getZipcode());
+            });
+
+            // 치킨 -> 한식
+            findMember.getFavoriteFoods().remove("치킨");
+            findMember.getFavoriteFoods().add("한식");
+
+            // 주소 히스토리 변경
+            findMember.getAddressHistory().remove(old1);
+            findMember.getAddressHistory().add(new AddressEntity(new Address("newCity1", "Street", "31523")));
 
             transaction.commit();
         } catch (Exception e) {
