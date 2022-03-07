@@ -18,40 +18,30 @@ public class JpqlMain {
             teamA.setName("팀A");
             em.persist(teamA);
 
-            Team teamB = new Team();
-            teamB.setName("팀B");
-            em.persist(teamB);
-
             Member member1 = new Member();
             member1.setUsername("회원1");
             member1.setTeam(teamA);
             em.persist(member1);
-
-            Member member2 = new Member();
-            member2.setUsername("회원2");
-            member2.setTeam(teamA);
-            em.persist(member2);
-
-            Member member3 = new Member();
-            member3.setUsername("회원3");
-            member3.setTeam(teamB);
-            em.persist(member3);
-
             em.flush();
             em.clear();
 
-            List<Member> members = em.createQuery("select m from Member m join fetch m.team", Member.class)
+            // 엔티티를 파라미터로 전달
+            em.createQuery("select m from Member m where m = :member", Member.class)
+                    .setParameter("member", member1)
+                    .getResultList();
+            // 식별자를 직접 전달
+            em.createQuery("select m from Member m where m.id = :memberId", Member.class)
+                    .setParameter("memberId", member1.getId())
                     .getResultList();
 
-            members.forEach(member -> System.out.println("member.getUsername() , member.getTeam().getName() = " + member.getUsername() + "," + member.getTeam().getName()));
+            // 엔티티 직접 사용 - 외래키값
+            em.createQuery("select m from Member m where m.team = :team", Member.class)
+                    .setParameter("team", teamA)
+                    .getResultList();
 
-            List<Team> teams = em.createQuery("select distinct t from Team t join fetch t.members", Team.class).getResultList();
-
-            teams.forEach(team -> {
-                team.getMembers().forEach(member -> {
-                    System.out.println("team.getName() + \",\" + member.getUsername() = " + team.getName() + "," + member.getUsername());
-                });
-            });
+            em.createQuery("select m from Member m where m.team.id = :teamId", Member.class)
+                    .setParameter("teamId", teamA.getId())
+                    .getResultList();
 
             transaction.commit();
         } catch (Exception e) {
@@ -60,6 +50,47 @@ public class JpqlMain {
         } finally {
             em.close();
         }
+    }
+
+    private static void fetchjoin(EntityManager em) {
+        Team teamA = new Team();
+        teamA.setName("팀A");
+        em.persist(teamA);
+
+        Team teamB = new Team();
+        teamB.setName("팀B");
+        em.persist(teamB);
+
+        Member member1 = new Member();
+        member1.setUsername("회원1");
+        member1.setTeam(teamA);
+        em.persist(member1);
+
+        Member member2 = new Member();
+        member2.setUsername("회원2");
+        member2.setTeam(teamA);
+        em.persist(member2);
+
+        Member member3 = new Member();
+        member3.setUsername("회원3");
+        member3.setTeam(teamB);
+        em.persist(member3);
+
+        em.flush();
+        em.clear();
+
+        List<Member> members = em.createQuery("select m from Member m join fetch m.team", Member.class)
+                .getResultList();
+
+        members.forEach(member -> System.out.println("member.getUsername() , member.getTeam().getName() = " + member.getUsername() + "," + member.getTeam().getName()));
+
+        List<Team> teams = em.createQuery("select distinct t from Team t join fetch t.members", Team.class).getResultList();
+
+        teams.forEach(team -> {
+            team.getMembers().forEach(member -> {
+                System.out.println("team.getName() + \",\" + member.getUsername() = " + team.getName() + "," + member.getUsername());
+            });
+        });
     }
 
     private static void pathExpression(EntityManager em) {
