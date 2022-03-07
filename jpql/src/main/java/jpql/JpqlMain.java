@@ -25,22 +25,8 @@ public class JpqlMain {
             em.flush();
             em.clear();
 
-            // 엔티티를 파라미터로 전달
-            em.createQuery("select m from Member m where m = :member", Member.class)
-                    .setParameter("member", member1)
-                    .getResultList();
-            // 식별자를 직접 전달
-            em.createQuery("select m from Member m where m.id = :memberId", Member.class)
-                    .setParameter("memberId", member1.getId())
-                    .getResultList();
-
-            // 엔티티 직접 사용 - 외래키값
-            em.createQuery("select m from Member m where m.team = :team", Member.class)
-                    .setParameter("team", teamA)
-                    .getResultList();
-
-            em.createQuery("select m from Member m where m.team.id = :teamId", Member.class)
-                    .setParameter("teamId", teamA.getId())
+            em.createNamedQuery("Member.findByUsername", Member.class)
+                    .setParameter("username", "회원1")
                     .getResultList();
 
             transaction.commit();
@@ -50,6 +36,37 @@ public class JpqlMain {
         } finally {
             em.close();
         }
+    }
+
+    private static void useEntityQuery(EntityManager em) {
+        Team teamA = new Team();
+        teamA.setName("팀A");
+        em.persist(teamA);
+
+        Member member1 = new Member();
+        member1.setUsername("회원1");
+        member1.setTeam(teamA);
+        em.persist(member1);
+        em.flush();
+        em.clear();
+
+        // 엔티티를 파라미터로 전달
+        em.createQuery("select m from Member m where m = :member", Member.class)
+                .setParameter("member", member1)
+                .getResultList();
+        // 식별자를 직접 전달
+        em.createQuery("select m from Member m where m.id = :memberId", Member.class)
+                .setParameter("memberId", member1.getId())
+                .getResultList();
+
+        // 엔티티 직접 사용 - 외래키값
+        em.createQuery("select m from Member m where m.team = :team", Member.class)
+                .setParameter("team", teamA)
+                .getResultList();
+
+        em.createQuery("select m from Member m where m.team.id = :teamId", Member.class)
+                .setParameter("teamId", teamA.getId())
+                .getResultList();
     }
 
     private static void fetchjoin(EntityManager em) {
