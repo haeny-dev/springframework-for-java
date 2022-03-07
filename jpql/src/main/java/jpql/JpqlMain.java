@@ -14,20 +14,18 @@ public class JpqlMain {
         EntityTransaction transaction = em.getTransaction();
         transaction.begin();
         try {
-            Team teamA = new Team();
-            teamA.setName("팀A");
-            em.persist(teamA);
-
-            Member member1 = new Member();
-            member1.setUsername("회원1");
-            member1.setTeam(teamA);
-            em.persist(member1);
+            for (int i = 0; i < 100; i++) {
+                Member member = new Member();
+                member.setUsername("member" + (i + 1));
+                member.setAge(i + 1);
+                em.persist(member);
+            }
             em.flush();
             em.clear();
 
-            em.createNamedQuery("Member.findByUsername", Member.class)
-                    .setParameter("username", "회원1")
-                    .getResultList();
+            em.createQuery("update Member m set m.age = :age")
+                    .setParameter("age", 20)
+                    .executeUpdate();
 
             transaction.commit();
         } catch (Exception e) {
@@ -36,6 +34,24 @@ public class JpqlMain {
         } finally {
             em.close();
         }
+    }
+
+    private static void namedQuery(EntityManager em) {
+        Team teamA = new Team();
+        teamA.setName("팀A");
+        em.persist(teamA);
+
+        Member member1 = new Member();
+        member1.setUsername("회원1");
+        member1.setTeam(teamA);
+        em.persist(member1);
+        em.flush();
+        em.clear();
+
+        // 벌크 연산은 영속성 컨텍스트를 무시하고 데이터베이스에 직접 쿼리
+        em.createNamedQuery("Member.findByUsername", Member.class)
+                .setParameter("username", "회원1")
+                .getResultList();
     }
 
     private static void useEntityQuery(EntityManager em) {
